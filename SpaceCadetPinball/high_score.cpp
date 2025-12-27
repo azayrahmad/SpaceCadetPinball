@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "high_score.h"
 
+#ifdef __EMSCRIPTEN__
+#include "idb_high_score.h"
+#endif
+
 #include "memory.h"
 #include "options.h"
 #include "pinball.h"
@@ -16,10 +20,28 @@ bool high_score::ShowDialog = false;
 
 int high_score::read(high_score_struct* table)
 {
+	for (int i = 0; i < 5; i++)
+	{
+		table[i].Score = -999;
+		table[i].Name[0] = 0;
+	}
+#ifdef __EMSCRIPTEN__
+	if (idb_high_score::read(table) != 0)
+	{
+		// fallback to ini
+		return read_from_ini(table);
+	}
+	return 0;
+#else
+	return read_from_ini(table);
+#endif
+}
+
+int high_score::read_from_ini(high_score_struct* table)
+{
 	char Buffer[20];
 
 	int checkSum = 0;
-	clear_table(table);
 	for (auto position = 0; position < 5; ++position)
 	{
 		auto tablePtr = &table[position];
@@ -46,6 +68,20 @@ int high_score::read(high_score_struct* table)
 }
 
 int high_score::write(high_score_struct* table)
+{
+#ifdef __EMSCRIPTEN__
+	if (idb_high_score::write(table) != 0)
+	{
+		// fallback to ini
+		return write_to_ini(table);
+	}
+	return 0;
+#else
+	return write_to_ini(table);
+#endif
+}
+
+int high_score::write_to_ini(high_score_struct* table)
 {
 	char Buffer[20];
 
@@ -74,6 +110,13 @@ int high_score::write(high_score_struct* table)
 
 void high_score::clear_table(high_score_struct* table)
 {
+#ifdef __EMSCRIPTEN__
+	if (idb_high_score::clear() != 0)
+	{
+		// Don't clear in-memory table if db operation fails
+		return;
+	}
+#endif
 	for (int index = 5; index; --index)
 	{
 		table->Score = -999;
