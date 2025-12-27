@@ -48,6 +48,8 @@ set(SOURCE_FILES
         SpaceCadetPinball/GroupData.h
         SpaceCadetPinball/high_score.cpp
         SpaceCadetPinball/high_score.h
+        SpaceCadetPinball/idb_high_score.cpp
+        SpaceCadetPinball/idb_high_score.h
         SpaceCadetPinball/loader.cpp
         SpaceCadetPinball/loader.h
         SpaceCadetPinball/maths.cpp
@@ -219,7 +221,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
         target_link_libraries(SpaceCadetPinball idbfs.js)
         set_target_properties(SpaceCadetPinball PROPERTIES LINK_FLAGS
         "-s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 -s DEMANGLE_SUPPORT=1 \
+        -s ASYNCIFY \
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/SpaceCadetPinball/emscripten_shell.html \
+        --js-library ${CMAKE_CURRENT_SOURCE_DIR}/SpaceCadetPinball/idb_high_score.js \
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/game_resources@game_resources --bind")
 endif()
 

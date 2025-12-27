@@ -20,6 +20,8 @@ public:
 	static void show_and_set_high_score_dialog(high_score_struct* table, int score, int pos, LPCSTR defaultName);
 	static void RenderHighScoreDialog();
 private :
+	static int read_from_ini(high_score_struct* table);
+	static int write_to_ini(high_score_struct* table);
 	static int dlg_enter_name;
 	static int dlg_score;
 	static int dlg_position;
