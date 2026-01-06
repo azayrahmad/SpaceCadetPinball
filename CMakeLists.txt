@@ -48,6 +48,8 @@ set(SOURCE_FILES
         SpaceCadetPinball/GroupData.h
         SpaceCadetPinball/high_score.cpp
         SpaceCadetPinball/high_score.h
+        SpaceCadetPinball/IniFile.cpp
+        SpaceCadetPinball/IniFile.h
         SpaceCadetPinball/loader.cpp
         SpaceCadetPinball/loader.h
         SpaceCadetPinball/maths.cpp

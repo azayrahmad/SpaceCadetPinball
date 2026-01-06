@@ -269,6 +269,7 @@ __pycache__/
 #CMake generated
 out/
 /cmake-build-debug
+/build
 
 # Windows XP stuff
 DebugWinXp/

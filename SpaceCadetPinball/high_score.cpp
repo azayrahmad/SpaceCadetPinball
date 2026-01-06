@@ -12,6 +12,7 @@ int high_score::dlg_position;
 char high_score::default_name[32]{};
 high_score_struct* high_score::dlg_hst;
 bool high_score::ShowDialog = false;
+IniFile high_score::score_file("high_scores.txt");
 
 
 int high_score::read(high_score_struct* table)
@@ -24,14 +25,12 @@ int high_score::read(high_score_struct* table)
 	{
 		auto tablePtr = &table[position];
 
-		snprintf(Buffer, sizeof Buffer, "%d", position);
-		strcat(Buffer, ".Name");
-		auto name = options::get_string(Buffer, "");
+		snprintf(Buffer, sizeof Buffer, "%d.Name", position);
+		auto name = score_file.get_string(Buffer, "");
 		strncpy(tablePtr->Name, name.c_str(), sizeof tablePtr->Name);
 
-		snprintf(Buffer, sizeof Buffer, "%d", position);
-		strcat(Buffer, ".Score");
-		tablePtr->Score = options::get_int(Buffer, tablePtr->Score);
+		snprintf(Buffer, sizeof Buffer, "%d.Score", position);
+		tablePtr->Score = score_file.get_int(Buffer, tablePtr->Score);
 
 		for (int i = static_cast<int>(strlen(tablePtr->Name)); --i >= 0; checkSum += tablePtr->Name[i])
 		{
@@ -39,7 +38,7 @@ int high_score::read(high_score_struct* table)
 		checkSum += tablePtr->Score;
 	}
 
-	auto verification = options::get_int("Verification", 7);
+	auto verification = score_file.get_int("Verification", 7);
 	if (checkSum != verification)
 		clear_table(table);
 	return 0;
@@ -54,13 +53,11 @@ int high_score::write(high_score_struct* table)
 	{
 		auto tablePtr = &table[position];
 
-		snprintf(Buffer, sizeof Buffer, "%d", position);
-		strcat(Buffer, ".Name");
-		options::set_string(Buffer, tablePtr->Name);
+		snprintf(Buffer, sizeof Buffer, "%d.Name", position);
+		score_file.set_string(Buffer, tablePtr->Name);
 
-		snprintf(Buffer, sizeof Buffer, "%d", position);
-		strcat(Buffer, ".Score");
-		options::set_int(Buffer, tablePtr->Score);
+		snprintf(Buffer, sizeof Buffer, "%d.Score", position);
+		score_file.set_int(Buffer, tablePtr->Score);
 
 		for (int i = static_cast<int>(strlen(tablePtr->Name)); --i >= 0; checkSum += tablePtr->Name[i])
 		{
@@ -68,7 +65,7 @@ int high_score::write(high_score_struct* table)
 		checkSum += tablePtr->Score;
 	}
 
-	options::set_int("Verification", checkSum);
+	score_file.set_int("Verification", checkSum);
 	return 0;
 }
 
