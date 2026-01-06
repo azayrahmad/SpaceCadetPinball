@@ -239,9 +239,18 @@
         var progressElement = document.getElementById('progress');
 
         var Module = {
-            preRun: [],
+            preRun: [function() {
+                var hs_data = window.localStorage.getItem('hs_data');
+                if (hs_data) {
+                    FS.writeFile("high_scores.txt", hs_data);
+                }
+            }],
             postRun: [],
             print: (function () {
+                window.addEventListener('beforeunload', function (e) {
+                    var hs_data = FS.readFile('high_scores.txt',{ encoding: 'utf8' });
+                    window.localStorage.setItem('hs_data', hs_data);
+                });
                 var element = document.getElementById('output');
                 if (element) element.value = ''; // clear browser cache
                 return function (text) {
