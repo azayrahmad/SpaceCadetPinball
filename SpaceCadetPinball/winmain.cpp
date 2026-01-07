@@ -15,6 +15,18 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <unistd.h>
+#include <emscripten/bind.h>
+
+extern "C"
+{
+	EMSCRIPTEN_KEEPALIVE void set_theme_color(int color_id, float r, float g, float b, float a)
+	{
+		if (color_id < ImGuiCol_COUNT)
+		{
+			ImGui::GetStyle().Colors[color_id] = ImVec4(r, g, b, a);
+		}
+	}
+}
 #endif
 
 SDL_Window *winmain::MainWindow = nullptr;
@@ -135,7 +147,7 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiSDL::Initialize(renderer, 0, 0);
-	ImGui::StyleColorsDark();
+	ImGui::StyleColorsClassic();
 	ImGuiIO &io = ImGui::GetIO();
 	ImIO = &io;
 	// ImGui_ImplSDL2_Init is private, we are not actually using ImGui OpenGl backend
