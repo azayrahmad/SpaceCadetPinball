@@ -24,6 +24,7 @@ IniFile::IniFile(const std::string& fileName) : FileName(fileName)
 
 IniFile::~IniFile()
 {
+#ifndef __EMSCRIPTEN__
 	if (Dirty)
 	{
 		std::ofstream file(FileName);
@@ -35,6 +36,7 @@ IniFile::~IniFile()
 			}
 		}
 	}
+#endif
 }
 
 int IniFile::get_int(const std::string& key, int defaultValue)
@@ -74,4 +76,15 @@ void IniFile::SetSetting(const std::string& key, const std::string& value)
 {
 	Settings[key] = value;
 	Dirty = true;
+
+#ifdef __EMSCRIPTEN__
+	std::ofstream file(FileName);
+	if (file.is_open())
+	{
+		for (const auto& setting : Settings)
+		{
+			file << setting.first << "=" << setting.second << std::endl;
+		}
+	}
+#endif
 }
