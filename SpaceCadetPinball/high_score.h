@@ -1,4 +1,5 @@
 #pragma once
+#include "IniFile.h"
 
 struct high_score_struct
 {
@@ -19,11 +20,12 @@ public:
 	static void show_high_score_dialog(high_score_struct* table);
 	static void show_and_set_high_score_dialog(high_score_struct* table, int score, int pos, LPCSTR defaultName);
 	static void RenderHighScoreDialog();
-private :
+private:
 	static int dlg_enter_name;
 	static int dlg_score;
 	static int dlg_position;
 	static char default_name[32];
 	static high_score_struct* dlg_hst;
 	static bool ShowDialog;
+	static IniFile score_file;
 };
