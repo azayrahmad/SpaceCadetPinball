@@ -77,6 +77,7 @@ public:
 	static void toggle(Menu1 uIDCheckItem);
 
 	static void keyboard();
+	static void save_settings();
 private:
 	static short vk_list[28];
 	static std::map<std::string, std::string> settings;

@@ -141,10 +141,14 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 	// ImGui_ImplSDL2_Init is private, we are not actually using ImGui OpenGl backend
 	ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
 
+#ifndef __EMSCRIPTEN__
 	auto prefPath = SDL_GetPrefPath(nullptr, "SpaceCadetPinball");
 	auto iniPath = std::string(prefPath) + "imgui_pb.ini";
 	io.IniFilename = iniPath.c_str();
 	SDL_free(prefPath);
+#else
+	io.IniFilename = "/prefs/imgui_pb.ini";
+#endif
 
 	// PB init from message handler
 	{
