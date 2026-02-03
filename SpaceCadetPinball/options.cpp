@@ -8,6 +8,10 @@
 #include "Sound.h"
 #include "winmain.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 optionsStruct options::Options{};
 
 short options::vk_list[28]
@@ -133,6 +137,7 @@ void options::uninit()
 	set_int("Linear Filtering", Options.LinearFiltering);
 	set_int("Frames Per Second", Options.FramesPerSecond);
 	set_int("Updates Per Second", Options.UpdatesPerSecond);
+	save_settings();
 }
 
 
@@ -240,6 +245,22 @@ void options::keyboard()
 	//DialogBoxParamA(nullptr, "KEYMAPPER", nullptr, KeyMapDlgProc, 0);
 }
 
+void options::save_settings()
+{
+	if (ImGui::GetCurrentContext())
+		ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM({
+		FS.syncfs(false, function (err) {
+			if (err) {
+				console.error("Failed to sync FS to IndexedDB: ", err);
+			}
+		});
+	});
+#endif
+}
+
 void options::MyUserData_ReadLine(ImGuiContext* ctx, ImGuiSettingsHandler* handler, void* entry, const char* line)
 {
 	auto& keyValueStore = *static_cast<std::map<std::string, std::string>*>(entry);
@@ -277,6 +298,7 @@ const std::string& options::GetSetting(const std::string& key, const std::string
 		settings[key] = value;
 		if (ImGui::GetCurrentContext())
 			ImGui::MarkIniSettingsDirty();
+		save_settings();
 		return value;
 	}
 	return setting->second;
@@ -287,4 +309,5 @@ void options::SetSetting(const std::string& key, const std::string& value)
 	settings[key] = value;
 	if (ImGui::GetCurrentContext())
 		ImGui::MarkIniSettingsDirty();
+	save_settings();
 }

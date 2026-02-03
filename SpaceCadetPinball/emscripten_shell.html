@@ -239,7 +239,19 @@
         var progressElement = document.getElementById('progress');
 
         var Module = {
-            preRun: [],
+            preRun: [
+                function () {
+                    FS.mkdir('/prefs');
+                    FS.mount(IDBFS, {}, '/prefs');
+                    Module.addRunDependency('syncfs');
+                    FS.syncfs(true, function (err) {
+                        if (err) {
+                            console.error("Failed to sync FS from IndexedDB: ", err);
+                        }
+                        Module.removeRunDependency('syncfs');
+                    });
+                }
+            ],
             postRun: [],
             print: (function () {
                 var element = document.getElementById('output');
