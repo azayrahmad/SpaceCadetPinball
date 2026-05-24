@@ -239,7 +239,20 @@
         var progressElement = document.getElementById('progress');
 
         var Module = {
-            preRun: [],
+            preRun: [function () {
+                // Persist SDL_GetPrefPath() output (used by imgui_pb.ini/high scores) via IndexedDB.
+                try { FS.mkdir('/home'); } catch (e) {}
+                try { FS.mkdir('/home/web_user'); } catch (e) {}
+                try { FS.mkdir('/home/web_user/.config'); } catch (e) {}
+                FS.mount(IDBFS, {}, '/home/web_user/.config');
+                FS.syncfs(true, function (err) {
+                    if (err) {
+                        console.error('IDBFS initial sync failed:', err);
+                    } else {
+                        console.log('IDBFS initial sync complete');
+                    }
+                });
+            }],
             postRun: [],
             print: (function () {
                 var element = document.getElementById('output');
@@ -311,6 +324,21 @@
             }
         };
         Module.setStatus('Downloading...');
+        function flushPersistentFs() {
+            if (typeof FS === 'undefined' || typeof FS.syncfs !== 'function') return;
+            FS.syncfs(false, function (err) {
+                if (err) {
+                    console.error('IDBFS flush failed:', err);
+                } else {
+                    console.log('IDBFS flush complete');
+                }
+            });
+        }
+        window.addEventListener('beforeunload', flushPersistentFs);
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden')
+                flushPersistentFs();
+        });
         window.onerror = function () {
             Module.setStatus('Exception thrown, see JavaScript console');
             Module.setStatus = function (text) {
